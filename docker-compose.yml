@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - lms-net
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+    networks:
+      - lms-net
+    environment:
+      # Example: Pass Mongo URI to backend as env var (optional)
+      MONGODB_URI: mongodb://mongodb:27017/lmsdb
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secret123
+      MONGO_INITDB_DATABASE: lmsdb
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - lms-net
+
+networks:
+  lms-net:
+    driver: bridge
+
+volumes:
+  mongo_data:
